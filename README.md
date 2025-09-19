@@ -1,21 +1,23 @@
 # RankGun Backend — Vercel Serverless (c) BL4ZE
 
-This version is tailored for Vercel. It exposes:
-- `POST /api/rank` — promotes a user to a new **roleId** via Roblox Open Cloud **cloud v2**.
-- `GET  /api/health` — health check.
+This is a minimal serverless backend for Vercel.
+
+## Endpoints
+- `POST /api/rank`   — promote a user to a new **roleId** using Roblox Open Cloud (cloud v2)
+- `GET  /api/health` — health check
 
 ## Environment Variables (Vercel → Project → Settings → Environment Variables)
-- `ROBLOX_OPEN_CLOUD_KEY` **(required)** — your Open Cloud API key (scoped to your Group, Manage Roles).
-- `SHARED_SECRET` **(recommended)** — long random string; the same value must be sent as header `x-rg-shared` from Roblox.
-- `OPEN_CLOUD_BASE` *(optional)* — default `https://apis.roblox.com`.
+- `ROBLOX_OPEN_CLOUD_KEY` **(required)** — your Open Cloud API key, scoped to your **Group** with permission to **manage roles**.
+- `SHARED_SECRET` **(recommended)** — a long random string. You must also send this value from Roblox in header `x-rg-shared`.
+- `OPEN_CLOUD_BASE` *(optional)* — defaults to `https://apis.roblox.com`.
 
 ## Request to /api/rank
-POST headers:
+Headers:
 ```
 Content-Type: application/json
-x-rg-shared: <your SHARED_SECRET>   # if you set one
+x-rg-shared: <YOUR_SHARED_SECRET>   # if you set one
 ```
-Body:
+Body JSON:
 ```json
 {
   "groupId": 1234567,
@@ -24,20 +26,34 @@ Body:
   "reason": "Promotion (c) BL4ZE"
 }
 ```
-
-## Notes
-- `newRoleId` is the **role Id**, not the rank number.
+Notes:
+- `newRoleId` is the **role Id**, not the rank number. Use `GroupService:GetRolesAsync(groupId)` to see role Ids.
 - The user must already be in the group.
-- The API key owner must have permission to change roles in the group.
-- The function uses: `PATCH {OPEN_CLOUD_BASE}/cloud/v2/groups/{groupId}/memberships/{targetUserId}` with body `{ "role": { "id": <roleId> } }`.
+- The key owner must have permission to change roles in that group.
 
 ## Deploy
-Push this folder to your GitHub repo connected to Vercel. Make sure the files are in the repo **root** exactly as shown:
+Place this folder at your repo **root**:
 ```
 /api/rank.js
 /api/health.js
 package.json
 README.md
 ```
-Vercel auto-deploys and your endpoint will be:
-`https://<your-project>.vercel.app/api/rank`
+Connect repo to Vercel → add env vars → Deploy.
+Your URL will be `https://<your-app>.vercel.app/api/rank`.
+
+## Roblox wiring
+In `ReplicatedStorage/RankGunConfig` (ModuleScript):
+```lua
+return {
+  GROUP_ID = 0000000,  -- your numeric group id
+  MIN_HR_RANK = 200,   -- your HR start rank
+  BACKEND_URL = "https://<your-app>.vercel.app/api/rank",
+  SIGNING_KEY_ID = "rk1",
+  USE_HMAC = false
+}
+```
+In `ServerScriptService/RankGun.server.lua`, inside sendBackend headers:
+```lua
+headers["x-rg-shared"] = "YOUR_SHARED_SECRET"
+```
