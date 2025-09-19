@@ -1,18 +1,5 @@
 {
-  "name": "rankgun-backend",
+  "name": "rankgun-backend-vercel",
   "version": "1.0.0",
-  "description": "Backend for Roblox RankGun (c) BL4ZE",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "helmet": "^7.0.0",
-    "morgan": "^1.10.0",
-    "node-fetch": "^3.3.2"
-  }
+  "private": true
 }
