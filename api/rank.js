@@ -26,14 +26,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "missing params" });
     }
 
-    const url = `${OPEN_CLOUD_BASE}/groups/v1/groups/${groupId}/roles/${newRoleId}/users/${targetUserId}`;
+    // Cloud v2 membership PATCH with role.id
+    const url = `${OPEN_CLOUD_BASE}/cloud/v2/groups/${groupId}/memberships/${targetUserId}`;
     const r = await fetch(url, {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "x-api-key": OPEN_CLOUD_KEY,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ reason: reason || "RankGun promotion (c) BL4ZE" })
+      body: JSON.stringify({
+        role: { id: newRoleId },
+        reason: reason || "RankGun promotion (c) BL4ZE"
+      })
     });
 
     if (!r.ok) {
